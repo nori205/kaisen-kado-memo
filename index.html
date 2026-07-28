@@ -17,6 +17,10 @@
     --accent: #2563eb;
     --accent-bg: #eaf1ff;
     --danger: #dc2626;
+    --w-phone: 116px;
+    --w-memo: 92px;
+    --w-del: 32px;
+    --w-month: 34px;
   }
   * { box-sizing: border-box; }
   body {
@@ -27,12 +31,9 @@
     padding-bottom: 80px;
   }
   header {
-    position: sticky;
-    top: 0;
     background: var(--card);
     border-bottom: 1px solid var(--border);
     padding: 16px 16px 12px;
-    z-index: 10;
   }
   header h1 {
     font-size: 18px;
@@ -43,82 +44,106 @@
     color: var(--sub);
   }
   main {
-    max-width: 640px;
-    margin: 0 auto;
     padding: 12px;
   }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 12px;
-  }
-  .card-top {
+  .toolbar {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    padding: 4px 4px 8px;
   }
-  .phone-input {
-    flex: 1;
-    font-size: 16px;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    min-width: 0;
-  }
-  .phone-input:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-  .del-btn {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: transparent;
-    color: var(--sub);
-    font-size: 20px;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  .del-btn:active {
-    background: #fee2e2;
-    color: var(--danger);
-  }
-  .months {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .month-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 2px;
-    border-radius: 8px;
-    background: var(--bg);
-    cursor: pointer;
-    user-select: none;
-  }
-  .month-cell.checked {
-    background: var(--accent-bg);
-  }
-  .month-cell .label {
+  .hint {
     font-size: 12px;
     color: var(--sub);
   }
-  .month-cell.checked .label {
-    color: var(--accent);
-    font-weight: 600;
+  .reset-btn {
+    font-size: 12px;
+    color: var(--sub);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    padding: 4px;
+    cursor: pointer;
   }
-  .month-cell input {
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+  }
+  table {
+    border-collapse: collapse;
+    width: max-content;
+  }
+  th, td {
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    text-align: center;
+    font-size: 12px;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: #fafbfc;
+    z-index: 3;
+    padding: 8px 2px;
+    color: var(--sub);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .col-phone, .col-memo, .col-del {
+    position: sticky;
+    background: var(--card);
+    z-index: 2;
+  }
+  thead .col-phone, thead .col-memo, thead .col-del {
+    z-index: 4;
+    background: #fafbfc;
+  }
+  .col-phone { left: 0; width: var(--w-phone); min-width: var(--w-phone); text-align: left; border-right: 1px solid var(--border); }
+  .col-memo { left: var(--w-phone); width: var(--w-memo); min-width: var(--w-memo); text-align: left; border-right: 1px solid var(--border); }
+  .col-del { left: calc(var(--w-phone) + var(--w-memo)); width: var(--w-del); min-width: var(--w-del); border-right: 1px solid var(--border); }
+  .col-month { width: var(--w-month); min-width: var(--w-month); }
+  td.col-phone, td.col-memo {
+    padding: 4px 6px;
+  }
+  .cell-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    padding: 6px 2px;
+    color: var(--text);
+    min-width: 0;
+  }
+  .cell-input:focus {
+    outline: none;
+    background: var(--accent-bg);
+    border-radius: 6px;
+  }
+  .del-btn {
+    width: 100%;
+    height: 100%;
+    min-height: 40px;
+    border: none;
+    background: transparent;
+    color: var(--sub);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .del-btn:active {
+    color: var(--danger);
+  }
+  td.col-month {
+    height: 40px;
+  }
+  .month-check {
     width: 22px;
     height: 22px;
     accent-color: var(--accent);
   }
+  tr.checked-row-hover td.col-month { background: var(--accent-bg); }
   .empty {
     text-align: center;
     color: var(--sub);
@@ -150,20 +175,6 @@
   .add-btn:active {
     background: #1d4ed8;
   }
-  .toolbar {
-    display: flex;
-    justify-content: flex-end;
-    padding: 4px 4px 8px;
-  }
-  .reset-btn {
-    font-size: 12px;
-    color: var(--sub);
-    background: none;
-    border: none;
-    text-decoration: underline;
-    padding: 4px;
-    cursor: pointer;
-  }
 </style>
 </head>
 <body>
@@ -173,9 +184,21 @@
 </header>
 <main>
   <div class="toolbar">
+    <span class="hint">横スクロールで月を確認できます</span>
     <button class="reset-btn" id="clearBtn" type="button">全チェックをクリア</button>
   </div>
-  <div id="list"></div>
+  <div class="table-wrap">
+    <table id="gridTable">
+      <thead>
+        <tr id="headRow">
+          <th class="col-phone">電話番号</th>
+          <th class="col-memo">メモ</th>
+          <th class="col-del"></th>
+        </tr>
+      </thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
   <div class="empty" id="emptyMsg" hidden>まだ回線がありません。下のボタンから追加してください。</div>
 </main>
 <div class="fab-bar">
@@ -189,7 +212,12 @@ const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','
 function load() {
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    return { year: raw.year || new Date().getFullYear(), lines: Array.isArray(raw.lines) ? raw.lines : [] };
+    const lines = Array.isArray(raw.lines) ? raw.lines : [];
+    lines.forEach(l => {
+      if (typeof l.memo !== 'string') l.memo = '';
+      if (!Array.isArray(l.months)) l.months = new Array(12).fill(false);
+    });
+    return { year: raw.year || new Date().getFullYear(), lines };
   } catch {
     return { year: new Date().getFullYear(), lines: [] };
   }
@@ -202,31 +230,55 @@ function save() {
 let state = load();
 state.year = new Date().getFullYear();
 
-const listEl = document.getElementById('list');
+const headRow = document.getElementById('headRow');
+const listBody = document.getElementById('listBody');
 const emptyMsg = document.getElementById('emptyMsg');
 document.getElementById('yearLabel').textContent = state.year;
 
+MONTHS.forEach(label => {
+  const th = document.createElement('th');
+  th.className = 'col-month';
+  th.textContent = label.replace('月', '');
+  headRow.appendChild(th);
+});
+
 function render() {
-  listEl.innerHTML = '';
+  listBody.innerHTML = '';
   emptyMsg.hidden = state.lines.length > 0;
 
   state.lines.forEach((line, idx) => {
-    const card = document.createElement('div');
-    card.className = 'card';
+    const tr = document.createElement('tr');
 
-    const top = document.createElement('div');
-    top.className = 'card-top';
-
-    const input = document.createElement('input');
-    input.className = 'phone-input';
-    input.type = 'tel';
-    input.placeholder = '電話番号を入力';
-    input.value = line.phone || '';
-    input.addEventListener('input', () => {
-      line.phone = input.value;
+    const phoneTd = document.createElement('td');
+    phoneTd.className = 'col-phone';
+    const phoneInput = document.createElement('input');
+    phoneInput.className = 'cell-input';
+    phoneInput.type = 'tel';
+    phoneInput.placeholder = '電話番号';
+    phoneInput.value = line.phone || '';
+    phoneInput.addEventListener('input', () => {
+      line.phone = phoneInput.value;
       save();
     });
+    phoneTd.appendChild(phoneInput);
+    tr.appendChild(phoneTd);
 
+    const memoTd = document.createElement('td');
+    memoTd.className = 'col-memo';
+    const memoInput = document.createElement('input');
+    memoInput.className = 'cell-input';
+    memoInput.type = 'text';
+    memoInput.placeholder = 'メモ';
+    memoInput.value = line.memo || '';
+    memoInput.addEventListener('input', () => {
+      line.memo = memoInput.value;
+      save();
+    });
+    memoTd.appendChild(memoInput);
+    tr.appendChild(memoTd);
+
+    const delTd = document.createElement('td');
+    delTd.className = 'col-del';
     const delBtn = document.createElement('button');
     delBtn.className = 'del-btn';
     delBtn.type = 'button';
@@ -238,49 +290,37 @@ function render() {
         render();
       }
     });
+    delTd.appendChild(delBtn);
+    tr.appendChild(delTd);
 
-    top.appendChild(input);
-    top.appendChild(delBtn);
-    card.appendChild(top);
-
-    const months = document.createElement('div');
-    months.className = 'months';
-    MONTHS.forEach((label, mIdx) => {
-      const cell = document.createElement('label');
-      cell.className = 'month-cell' + (line.months[mIdx] ? ' checked' : '');
-
+    MONTHS.forEach((_, mIdx) => {
+      const td = document.createElement('td');
+      td.className = 'col-month';
       const cb = document.createElement('input');
+      cb.className = 'month-check';
       cb.type = 'checkbox';
       cb.checked = !!line.months[mIdx];
       cb.addEventListener('change', () => {
         line.months[mIdx] = cb.checked;
-        cell.classList.toggle('checked', cb.checked);
         save();
       });
-
-      const span = document.createElement('span');
-      span.className = 'label';
-      span.textContent = label;
-
-      cell.appendChild(cb);
-      cell.appendChild(span);
-      months.appendChild(cell);
+      td.appendChild(cb);
+      tr.appendChild(td);
     });
-    card.appendChild(months);
 
-    listEl.appendChild(card);
+    listBody.appendChild(tr);
   });
 }
 
 document.getElementById('addBtn').addEventListener('click', () => {
-  state.lines.push({ phone: '', months: new Array(12).fill(false) });
+  state.lines.push({ phone: '', memo: '', months: new Array(12).fill(false) });
   save();
   render();
 });
 
 document.getElementById('clearBtn').addEventListener('click', () => {
   if (!state.lines.length) return;
-  if (confirm('すべての回線のチェックをクリアしますか？（電話番号は残ります）')) {
+  if (confirm('すべての回線のチェックをクリアしますか？（電話番号・メモは残ります）')) {
     state.lines.forEach(line => { line.months = new Array(12).fill(false); });
     save();
     render();
