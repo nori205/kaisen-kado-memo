@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>回線稼働メモ</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#2563eb">
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --border: #e2e4e9;
+    --text: #1f2430;
+    --sub: #6b7280;
+    --accent: #2563eb;
+    --accent-bg: #eaf1ff;
+    --danger: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 80px;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 16px 12px;
+    z-index: 10;
+  }
+  header h1 {
+    font-size: 18px;
+    margin: 0 0 2px;
+  }
+  header .year {
+    font-size: 13px;
+    color: var(--sub);
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 12px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .phone-input {
+    flex: 1;
+    font-size: 16px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 0;
+  }
+  .phone-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .del-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: var(--sub);
+    font-size: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .del-btn:active {
+    background: #fee2e2;
+    color: var(--danger);
+  }
+  .months {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .month-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 2px;
+    border-radius: 8px;
+    background: var(--bg);
+    cursor: pointer;
+    user-select: none;
+  }
+  .month-cell.checked {
+    background: var(--accent-bg);
+  }
+  .month-cell .label {
+    font-size: 12px;
+    color: var(--sub);
+  }
+  .month-cell.checked .label {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .month-cell input {
+    width: 22px;
+    height: 22px;
+    accent-color: var(--accent);
+  }
+  .empty {
+    text-align: center;
+    color: var(--sub);
+    font-size: 14px;
+    padding: 40px 20px;
+  }
+  .fab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+  }
+  .add-btn {
+    display: block;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .add-btn:active {
+    background: #1d4ed8;
+  }
+  .toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 4px 4px 8px;
+  }
+  .reset-btn {
+    font-size: 12px;
+    color: var(--sub);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    padding: 4px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>回線稼働メモ</h1>
+  <div class="year"><span id="yearLabel"></span>年の稼働チェック</div>
+</header>
+<main>
+  <div class="toolbar">
+    <button class="reset-btn" id="clearBtn" type="button">全チェックをクリア</button>
+  </div>
+  <div id="list"></div>
+  <div class="empty" id="emptyMsg" hidden>まだ回線がありません。下のボタンから追加してください。</div>
+</main>
+<div class="fab-bar">
+  <button class="add-btn" id="addBtn" type="button">＋ 回線を追加</button>
+</div>
+
+<script>
+const STORAGE_KEY = 'kaisen-kado-memo';
+const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+function load() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return { year: raw.year || new Date().getFullYear(), lines: Array.isArray(raw.lines) ? raw.lines : [] };
+  } catch {
+    return { year: new Date().getFullYear(), lines: [] };
+  }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = load();
+state.year = new Date().getFullYear();
+
+const listEl = document.getElementById('list');
+const emptyMsg = document.getElementById('emptyMsg');
+document.getElementById('yearLabel').textContent = state.year;
+
+function render() {
+  listEl.innerHTML = '';
+  emptyMsg.hidden = state.lines.length > 0;
+
+  state.lines.forEach((line, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const top = document.createElement('div');
+    top.className = 'card-top';
+
+    const input = document.createElement('input');
+    input.className = 'phone-input';
+    input.type = 'tel';
+    input.placeholder = '電話番号を入力';
+    input.value = line.phone || '';
+    input.addEventListener('input', () => {
+      line.phone = input.value;
+      save();
+    });
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn';
+    delBtn.type = 'button';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => {
+      if (confirm('この回線を削除しますか？')) {
+        state.lines.splice(idx, 1);
+        save();
+        render();
+      }
+    });
+
+    top.appendChild(input);
+    top.appendChild(delBtn);
+    card.appendChild(top);
+
+    const months = document.createElement('div');
+    months.className = 'months';
+    MONTHS.forEach((label, mIdx) => {
+      const cell = document.createElement('label');
+      cell.className = 'month-cell' + (line.months[mIdx] ? ' checked' : '');
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = !!line.months[mIdx];
+      cb.addEventListener('change', () => {
+        line.months[mIdx] = cb.checked;
+        cell.classList.toggle('checked', cb.checked);
+        save();
+      });
+
+      const span = document.createElement('span');
+      span.className = 'label';
+      span.textContent = label;
+
+      cell.appendChild(cb);
+      cell.appendChild(span);
+      months.appendChild(cell);
+    });
+    card.appendChild(months);
+
+    listEl.appendChild(card);
+  });
+}
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  state.lines.push({ phone: '', months: new Array(12).fill(false) });
+  save();
+  render();
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if (!state.lines.length) return;
+  if (confirm('すべての回線のチェックをクリアしますか？（電話番号は残ります）')) {
+    state.lines.forEach(line => { line.months = new Array(12).fill(false); });
+    save();
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
